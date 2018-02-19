@@ -8,6 +8,7 @@ const findOrCreate = require('mongoose-find-or-create');
 var UserSchema = new Schema(
     {
         facebook_id:String,
+
         name:String,
         surname:String,
         email:String,

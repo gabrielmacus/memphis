@@ -6,8 +6,8 @@ const Schema = mongoose.Schema;
 
 var FriendshipSchema = new Schema(
     {
-        friend_id:String,
-        friend_2_id:String,
+        friend:{type: Schema.Types.ObjectId, ref: 'User'},
+        friend2:{type: Schema.Types.ObjectId, ref: 'User'},
         status:Number
     }
 );

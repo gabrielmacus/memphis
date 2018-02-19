@@ -7,6 +7,10 @@ var bodyParser = require('body-parser');
 var lessMiddleware = require('less-middleware');
 var dotenv = require('dotenv').load();
 var passport = require('passport');
+var i18n = require('i18n');
+i18n.configure({directory: __dirname  + '/locales',defaultLocale: process.env.APP_LOCALE_DEFAULT});
+
+
 
 /**
  * Models
@@ -17,17 +21,20 @@ var User  = require('./models/User');
  * Routes
  */
 var index = require('./routes/index');
-var users = require('./routes/users');
 var auth = require('./routes/auth');
-
+var user = require('./routes/user');
+/**
+ * Services
+ */
+var AuthService = require('./services/auth');
 
 
 var app = express();
 
 // view engine setup
 
-const expressNunjucks = require('express-nunjucks');
-const njk = expressNunjucks(app, {
+var expressNunjucks = require('express-nunjucks');
+var njk = expressNunjucks(app, {
     watch: ("production" !== app.get('env')),
     noCache: ("production" !== app.get('env'))
 });
@@ -47,6 +54,7 @@ app.use(require('body-parser').urlencoded({ extended: true }));
 app.use(require('express-session')({ secret: process.env.APP_SESSION_SECRET, resave: false, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(i18n.init);
 //https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 passport.serializeUser(function(user, done) {
 
@@ -61,16 +69,18 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
-app.use('/',function (req,res,next) {
+var roles = fs.readFileSync(path.join(__dirname,'roles.json'));
+var checkAuth = new AuthService.CheckAuth(roles);
+var checkNotAuth = new AuthService.CheckNotAuth();
 
 
 
-    next();
-}, index);
-app.use('/users', users);
-app.use('/auth',auth);
-// Initialize Passport and restore authentication state, if any, from the
-// session.
+
+app.use('/auth',checkNotAuth,auth);
+app.use('/user',checkAuth,user);
+app.use('/',checkAuth,checkAuth, index);
+
+
 
 
 // catch 404 and forward to error handler
@@ -83,6 +93,7 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -90,20 +101,11 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
 
-  var data = {};
-  if(req.app.get('env') === 'development')
-  {
-      data.error = res.locals.error;
-  }
 
-  res.render('error',data);
+
+  res.render('error');
 });
 
-function CheckAuth() {
-
-    req.session.passport.user
-
-}
 
 
 module.exports = app;

@@ -1,0 +1,12 @@
+{
+    "user":{
+    "permissions": {
+      "user.friends": {
+        "methods": [
+          "GET"
+        ],
+        "action": "allow"
+      }
+    }
+  }
+}

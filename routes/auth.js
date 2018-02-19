@@ -3,15 +3,17 @@ var router = express.Router();
 var passport = require('passport');
 var User  = require('../models/User');
 var mongoose = require('mongoose');
-/**
- * Passport stategies
- */
+
 router.get('/login',function (req,res) {
 
     res.render('login',{env:process.env});
 
 
-})
+});
+
+/**
+ * Passport stategies
+ */
 
 //Facebook
 var FacebookStrategy = require('passport-facebook').Strategy;
@@ -43,7 +45,7 @@ router.get('/facebook',passport.authenticate('facebook'));
 
 
 router.get('/facebook/return',
-    passport.authenticate('facebook', { failureRedirect: '/auth/login' }),
+    passport.authenticate('facebook', { failureRedirect: process.env.APP_LOGIN_URL }),
     function(req, res) {
         res.redirect('/');
     });

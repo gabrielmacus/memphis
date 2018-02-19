@@ -1,0 +1,6 @@
+{% extends "layouts/login-layout.html" %}
+
+{% block main %}
+<a href='https://www.facebook.com/{{env.FACEBOOK_APP_VERSION}}/dialog/oauth?client_id={{env.FACEBOOK_APP_ID}}&response_type=code&redirect_uri={{env.FACEBOOK_REDIRECT_URI}}&scopes=public_profile'>Ingresar con facebook</a>
+
+{% endblock %}

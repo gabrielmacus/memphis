@@ -8,6 +8,7 @@ var lessMiddleware = require('less-middleware');
 var dotenv = require('dotenv').load();
 var passport = require('passport');
 var i18n = require('i18n');
+var fs = require('fs');
 i18n.configure({directory: __dirname  + '/locales',defaultLocale: process.env.APP_LOCALE_DEFAULT});
 
 
@@ -22,7 +23,8 @@ var User  = require('./models/User');
  */
 var index = require('./routes/index');
 var auth = require('./routes/auth');
-var user = require('./routes/user');
+var me = require('./routes/me');
+var user  = require('./routes/user');
 /**
  * Services
  */
@@ -69,26 +71,24 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
-var roles = fs.readFileSync(path.join(__dirname,'roles.json'));
-var checkAuth = new AuthService.CheckAuth(roles);
+
+
+var checkAuth = new AuthService.CheckAuth(path.join(__dirname,'roles.json'));
 var checkNotAuth = new AuthService.CheckNotAuth();
 
 
 
-
 app.use('/auth',checkNotAuth,auth);
+app.use('/me',checkAuth,me);
 app.use('/user',checkAuth,user);
-app.use('/',checkAuth,checkAuth, index);
-
-
-
+app.use('/',checkAuth, index);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
 
-  var err = new Error('Not Found');
-  err.status = 404;
-  next(err);
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
 });
 
 // error handler

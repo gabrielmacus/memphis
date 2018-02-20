@@ -5,7 +5,6 @@ var User  = require('../models/User');
 var mongoose = require('mongoose');
 
 router.get('/login',function (req,res) {
-
     res.render('login',{env:process.env});
 
 
@@ -32,7 +31,9 @@ passport.use(new FacebookStrategy({
         // providers.
         mongoose.connect(process.env.DB_STRING);
 
-        User.findOrCreate({facebook_id:profile.id,name:profile.first_name,surname:profile.last_name,email:profile.email,picture:profile.picture},function (err,user) {
+        profile = profile._json;
+
+        User.findOrCreate({email:profile.email,facebook_id:profile.id,full_name:profile.first_name+" "+profile.last_name,name:profile.first_name,surname:profile.last_name,email:profile.email,picture:profile.picture.data.url},function (err,user) {
 
             return cb(err, user);
 

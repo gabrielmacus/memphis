@@ -1,7 +1,9 @@
+var fs = require('fs');
+var roles = false;
 module.exports=
     {
-        CheckAuth:function (roles,failureUrl) {
-
+        CheckAuth:function (rolesPath,failureUrl) {
+            roles =  JSON.parse(fs.readFileSync(rolesPath).toString());
             if(!failureUrl)
             {
                 failureUrl = process.env.APP_LOGIN_URL;
@@ -9,6 +11,13 @@ module.exports=
 
 
             return function (req,res,next) {
+
+                if("production" !== req.app.get('env'))
+                {
+                    //If not in production, doesn't make cache
+                    roles =  JSON.parse(fs.readFileSync(rolesPath).toString());
+
+                }
 
                 if( req.session.passport && req.session.passport.user)
                 {
@@ -53,13 +62,22 @@ module.exports=
          */
         CheckPermissions:function (roles) {
 
+
             return function (req,res,next) {
+
 
                 if(req.session.passport && req.session.passport.user)
                 {
                     var role  = (req.session.passport.user.role)?req.session.passport.user.role:"user";//Default role
 
-                    var path = req.path;
+                    if(role == process.env.APP_SU_ROLE)
+                    {
+                        return next();
+                    }
+
+                    var path = req.baseUrl+req.path;
+
+
 
                     if(path[0]=="/")
                     {
@@ -75,14 +93,38 @@ module.exports=
 
                     var method  = req.method;
 
+                    if(roles[role] && roles[role]["permissions"][path] && roles[role]["permissions"][path])
+                    {
+
+                        switch (roles[role]["permissions"][path]["action"])
+                        {
+                            case "allow":
+
+                                if(roles[role]["permissions"][path]["methods"].indexOf(method) > -1)
+                                {
+                                    return next();
+                                }
+
+                                break;
+                            case "deny":
+
+                                if(roles[role]["permissions"][path]["methods"].indexOf(method) == -1)
+                                {
+                                    return next();
+                                }
+
+                                break;
+                        }
 
 
 
-                    return next();
+                    }
+
+
                 }
 
                 //TODO: set text with i18n
-                return res.json(401,{"error":"Unauthorized access"});
+                return res.status(401).json({"error":"Unauthorized access"});
 
             }
 

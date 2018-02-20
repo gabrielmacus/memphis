@@ -1,4 +1,5 @@
 {
+
   "user":{
     "permissions": {
 
@@ -31,7 +32,23 @@
           "PUT"
         ],
         "action": "deny"
+      },
+      "me.friends.pending":
+      {
+        "methods":[
+          "GET"
+        ],
+        "action":"allow"
+      },
+      "me.sharelocation":
+      {
+        "methods":[
+          "GET"
+        ],
+        "action":"allow"
       }
+
+
     }
   }
 }

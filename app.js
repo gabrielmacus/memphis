@@ -9,6 +9,9 @@ var dotenv = require('dotenv').load();
 var passport = require('passport');
 var i18n = require('i18n');
 var fs = require('fs');
+var http = require('http');
+var WebSocket = require('ws');
+
 i18n.configure({directory: __dirname  + '/locales',defaultLocale: process.env.APP_LOCALE_DEFAULT});
 
 
@@ -29,7 +32,7 @@ var user  = require('./routes/user');
  * Services
  */
 var AuthService = require('./services/auth');
-
+var WsService = require('./services/ws');
 
 var app = express();
 
@@ -53,7 +56,9 @@ app.use(lessMiddleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(require('cookie-parser')());
 app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({ secret: process.env.APP_SESSION_SECRET, resave: false, saveUninitialized: false }));
+
+var sessionParser =  require('express-session')({ secret: process.env.APP_SESSION_SECRET, resave: false, saveUninitialized: false });
+app.use(sessionParser);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(i18n.init);
@@ -106,6 +111,30 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+
+
+
+const server = http.createServer(app);
+
+const wss = new WebSocket.Server({
+    verifyClient:function (info,done) {
+
+        sessionParser(info.req, {},function () {
+
+            done(true);
+
+        });
+
+    },
+    port: 9090},server);
+
+//all connected to the server users
+
+//when a user connects to our sever
+wss.on('connection',WsService.OnConnection);
+
+
+app.server = server;
 
 
 module.exports = app;

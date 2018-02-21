@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var User = require('../models/User');
 var Friendship = require('../models/Friendship');
+var UserService =  require('../services/user');
+var WsService = require('../services/ws');
 var mongoose = require('mongoose');
 require('mongoose-pagination');
 
@@ -31,7 +33,33 @@ router.get('/search',function (req,res,next) {
 
 });
 
+router.get('/viewlocation',function (req,res) {
 
+    var id = (req.query.id)?req.query.id:false;
+    if(!id)
+    {
+          //TODO: handle errors and use i18n
+         return res.json({error:'No se especificó un usuario'})
+    }
+
+    UserService.areFriends(req.session.passport.user,id,function (areFriends) {
+
+        if(!areFriends)
+        {
+            //TODO: handle errors and use i18n
+            return res.json({error:'El usuario especificado no está en tu lista de amigos'});
+        }
+
+
+        return res.render("user/location-map");
+
+
+
+    });
+
+
+
+})
 
 router.post('/addfriend',function (req,res) {
 

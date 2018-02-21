@@ -65,7 +65,9 @@ app.use(i18n.init);
 //https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 passport.serializeUser(function(user, done) {
 
-    done(null, {"_id":user._id});
+    var usr= {"_id":user._id,picture:user.picture,name:user.name,surname:user.surname};
+
+    done(null, usr);
     // if you use Model.id as your idAttribute maybe you'd want
     // done(null, user.id);
 });
@@ -80,6 +82,8 @@ passport.deserializeUser(function(id, done) {
 
 var checkAuth = new AuthService.CheckAuth(path.join(__dirname,'roles.json'));
 var checkNotAuth = new AuthService.CheckNotAuth();
+
+app.locals.env = process.env;
 
 
 

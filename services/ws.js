@@ -116,6 +116,7 @@ module.exports=
                                           var session  = sessions[k];
 
 
+                                          msg.user = req.session.passport.user;
                                           session["connection"].send(JSON.stringify(msg));
 
 

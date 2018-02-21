@@ -9,7 +9,7 @@ module.exports=
 
 
         /**
-         *
+         * Find users friends
          * @param req
          * @param status Friendship status, 1: pending approbation, 2: approved, etc
          * @param owner 1: request made by me, 2: request made by another user, 3: indistinct requests
@@ -48,7 +48,30 @@ module.exports=
 
                     }
                 );
-            }
+            },
+
+        areFriends:function(user1,user2,callback)
+        {
+            Friendship.find({'status':2,'$or':[{'friend':user1,'friend2':user2},{'friend2':user1,'friend':user2}]}).exec(
+                function (err,results) {
+
+                    if(err)
+                    {
+                        //TODO: handle error
+                    }
+                    if(results && results.length)
+                    {
+                        callback(true);
+                    }
+                    else
+                    {
+                        callback(false);
+                    }
+
+
+                }
+            );
+        }
 
 
 

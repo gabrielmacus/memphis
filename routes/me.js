@@ -10,12 +10,10 @@ var UserService = require('../services/user');
 
 router.get('/sharelocation',function (req,res) {
 
-
-    res.render('me/share-location');
-
-
+    res.render('user/location-map',{myLocation:true,user:req.session.passport.user});
 
 })
+
 router.get('/friends',function (req,res,next) {
 
     UserService.findFriends(req,2,function (err,results) {

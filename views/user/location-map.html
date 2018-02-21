@@ -1,0 +1,108 @@
+
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxqL3eG6quOKEbnY7d00DUPX0h5yoqS5Q&callback=initMap">
+</script>
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+    }
+</style>
+
+<div id="map"></div>
+<script>
+
+
+    function initMap() {
+
+        var bounds = new google.maps.LatLngBounds();
+
+        var connection = new WebSocket('ws://localhost:9090');
+
+        var map = false;
+        var marker = false;
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: -30.0, lng: -60.0},
+            zoom: 16
+        });
+
+
+
+        if (navigator.geolocation) {
+
+            {% if myLocation %}
+
+            //If i'm sharing my location
+            setInterval(function () {
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+
+                    var position={lat:position.coords.latitude,lng:position.coords.longitude};
+
+                    connection.send(JSON.stringify({"type":"share-location","location":position}));
+
+                    setLocationMarker(map,bounds,marker,position,"{{ user.picture | safe }}");
+
+                    bounds = false;
+
+
+                }, function (error) {
+
+                    //TODO: HANDLE GEOLOCATION ERROR
+                    alert(error);
+                });
+
+
+            },2000);
+
+            {% else %}
+            //If i'm seeing friend's location
+            connection.onmessage=function (e) {
+
+               var data = JSON.parse(e.data);
+
+               switch (data.type)
+               {
+                   case "share-location":
+
+                       setLocationMarker(map,bounds,marker,data.location,data.user.picture);
+                       bounds = false;
+
+                       break;
+               }
+            }
+
+
+            {% endif %}
+
+
+
+        }
+
+
+
+
+
+    }
+
+    function setLocationMarker(map,bounds,marker,position,icon) {
+
+        if(bounds)
+        {
+            bounds.extend(position);
+            map.fitBounds(bounds);
+        }
+
+        marker = new google.maps.Marker({
+            position: position,
+            map: map,
+            icon: {url:icon, scaledSize: new google.maps.Size(30, 30)}
+        });
+
+
+    }
+</script>
+
+

@@ -1,0 +1,175 @@
+{% macro list(results,id) %}
+
+<ul id="{{id}}" class="users-list">
+
+    {% for user in results.users %}
+    <li class="user">
+
+        <div>
+            <figure>
+                <img alt="{{user.full_name}}" src="{{user.picture}}">
+            </figure>
+        </div>
+
+        <div>
+            <span class="full-name">{{user.full_name}}</span>
+
+            <span class="actions">
+
+
+                <div v-if="friendships && friendships['{{user._id}}']">
+
+                    <template v-if="friendships['{{user._id}}'].status == 1">
+
+
+                        <div class="friend-options"  v-if="friendships['{{user._id}}'].friend == '{{user._id}}'">
+                            <a @click="acceptFriend('{{user._id}}')" class="accept-friend">Aceptar solicitud</a>
+                            <a @click="rejectFriend('{{user._id}}')" class="reject-friend">Rechazar solicitud</a>
+                        </div>
+
+                        <div v-else class="friend-options">
+                            <a @click="deleteFriend('{{user._id}}')" class="cancel-friend">Cancelar solicitud</a>
+                        </div>
+
+
+                    </template>
+                     <template  v-else-if="friendships['{{user._id}}'].status == 2">
+                         <div class="friend-options">
+                             <a @click="deleteFriend('{{user._id}}')" class="delete-friend">Eliminar amigo</a>
+                         </div>
+                     </template>
+
+
+                </div>
+
+                <template v-else>
+                        <div class="friend-options">
+                           <a @click="addFriend('{{user._id}}')" class="add-friend">Agregar amigo</a>
+                        </div>
+                </template>
+
+
+
+
+
+
+
+
+            </span>
+
+        </div>
+
+
+    </li>
+    {% else %}
+
+        <div class="no-results">
+
+
+            {{caller()}}
+
+        </div>
+
+    {% endfor %}
+</ul>
+
+<script>
+
+
+    (function () {
+
+
+        var friendships ={{results.friendships | dump | safe}};
+
+        var app = new Vue({
+            el: '#{{id}}',
+            data: {
+                friendships:friendships
+            },
+            methods:
+                {
+                    deleteFriend:function(id) {
+
+                        axios({
+                            method:'post',
+                            url:'/user/deletefriend?id='+id
+                        })
+                            .then(function(response) {
+
+
+                                friendshipUpdate({user:{_id:id},status:3});
+
+
+                            });
+
+                    },
+                    rejectFriend:function(id) {
+                        this.deleteFriend(id);
+                    },
+                    acceptFriend:function(id) {
+
+                        axios({
+                            method:'post',
+                            url:'/me/acceptfriend?id='+id
+                        })
+                            .then(function(response) {
+
+                                friendshipUpdate({user:{_id:id},status:2});
+
+                            });
+
+                    },
+                    addFriend:function(id) {
+
+
+                        axios({
+                            method:'post',
+                            url:'/user/addfriend?id='+id
+                        })
+                            .then(function(response) {
+
+                                Vue.set(app.friendships , id, {friend2:id,status:1});
+
+                            });
+                    }
+                }
+        })
+
+
+        function friendshipUpdate (data) {
+
+            console.log(data);
+                switch (data.status){
+
+                    case 1:
+
+                        Vue.set(app.friendships , data.user._id, {friend:data.user._id,status:data.status});
+
+                        break;
+
+                    case 2:
+
+                        var friendship = app.friendships[data.user._id];
+                        friendship.status  =data.status;
+
+                        Vue.set(app.friendships , data.user._id, friendship);
+
+
+
+                    default:
+                        Vue.delete(app.friendships , data.user._id);
+                        break;
+                }
+
+
+            }
+        wse.bind('friendship-update',friendshipUpdate);
+
+
+
+    })();
+
+
+</script>
+
+{% endmacro %}

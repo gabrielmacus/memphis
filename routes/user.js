@@ -12,7 +12,13 @@ router.get('/search',function (req,res,next) {
 
     mongoose.connect(process.env.DB_STRING);
 
-    var q =  (req.query.q)?req.query.q:"";
+    var q =  (req.query.q)?req.query.q:false;
+
+    if(!q)
+    {
+        return   res.render('user/search');
+    }
+
     var query = {'_id':{'$nin':[req.session.passport.user._id]},'full_name':new RegExp(q,'i')};
     var page = (req.query.p)?req.query.p:1;
 
@@ -24,14 +30,74 @@ router.get('/search',function (req,res,next) {
                 //TODO: Handle errors
             }
 
-            //TODO: set pager
-            res.render('user/search',{results:results});
+            if(results)
+            {
+
+                var ids = results.map(function (item) { return item._id;  });
+
+                Friendship.find({
+                    '$or':[
+                        {'friend':req.session.passport.user._id,'friend2':{'$in':ids}},
+                        {'friend2':req.session.passport.user._id,'friend':{'$in':ids}}
+                    ]
+                }).exec(function (err,f) {
+
+
+                    if(err)
+                    {
+                        //TODO: Handle errors
+                    }
+
+                    var friendships = {};
+
+                    f.forEach(function (item) {
+                        var friendId = (item.friend == req.session.passport.user._id)?item.friend2:item.friend;
+
+                        friendships[friendId] = item;
+                    });
+
+                    //TODO: set pager
+                    res.render('user/search-results',{results:{users:results,friendships: friendships}});
+
+                });
+            }
+
+
+
+
 
         }
     );
 
 
 });
+
+
+router.post('/deletefriend',function (req,res) {
+
+
+    UserService.deleteFriend(req,function (err,deleted) {
+        if(err)
+        {
+            //TODO: handle errors
+        }
+
+
+
+        WsService.SendTo([deleted],{type:'friendship-update',status:3,user:req.session.passport.user});
+
+
+        //TODO: how will i manage this kind of responses?
+        return res.json({'deleted_friend':deleted});
+    });
+
+
+})
+
+
+
+
+
 
 router.get('/viewlocation',function (req,res) {
 
@@ -112,7 +178,9 @@ router.post('/addfriend',function (req,res) {
                 }
 
 
-                Friendship.create({status:1,friend:req.session.passport.user._id,friend2:id},function (err,friendship) {
+                var status = 1;
+
+                Friendship.create({status:status,friend:req.session.passport.user._id,friend2:id},function (err,friendship) {
 
                     if(err)
                     {
@@ -120,7 +188,7 @@ router.post('/addfriend',function (req,res) {
                     }
 
 
-                    WsService.SendTo([id],{type:'friendship-request',user:req.session.passport.user});
+                    WsService.SendTo([id],{type:'friendship-update',status:status,user:req.session.passport.user});
 
 
 

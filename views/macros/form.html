@@ -1,0 +1,22 @@
+{% macro label(text,for) %}
+
+<div class="form-label">
+
+    <label for="{{for}}" >{{text}}</label>
+
+</div>
+
+
+{% endmacro %}
+
+
+{% macro input(type,id) %}
+
+<div class="form-field">
+
+    <input id="{{id}}" type="{{type}}">
+
+</div>
+
+
+{% endmacro %}

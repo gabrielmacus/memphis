@@ -51,6 +51,16 @@
       {
         "methods":["GET"],
         "action":"allow"
+      },
+      "user.deletefriend":
+      {
+        "methods":["POST"],
+        "action":"allow"
+      },
+      "me.acceptfriend":
+      {
+        "methods":["POST"],
+        "action":"allow"
       }
 
     }

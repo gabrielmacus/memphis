@@ -1,0 +1,32 @@
+ {% if results.friendships[user._id] %}
+
+                    {% set friendship = results.friendships[user._id] %}
+
+
+                    {% if friendship.status == 1 %}
+
+                               {% if  friendship.friend.toString() ==  user._id.toString() %}
+
+                                    <a onclick="acceptFriend('{{user._id}}')">Aceptar solicitud</a>
+                                    <a onclick="rejectFriend('{{user._id}}')">Rechazar solicitud</a>
+
+                               {% else %}
+
+                                    <a onclick="deleteFriend('{{user._id}}')">Cancelar solicitud</a>
+                                {% endif %}
+
+
+                    {% elif friendship.status == 2%}
+
+                       <a onclick="deleteFriend('{{user._id}}')" class="delete-friend">
+                                Eliminar amigo
+                       </a>
+                    {% endif %}
+
+                {% else %}
+
+                   <a onclick="addFriend('{{user._id}}')" class="add-friend">
+                                Agregar amigo
+                   </a>
+
+                {% endif %}

@@ -1,1 +1,19 @@
-{{results}}
+{% extends "layouts/layout.html" %}
+
+{% block main %}
+
+
+    <form action="/user/search" method="get">
+
+        <div class="form-field">
+
+            <label for="usr-search">Buscá un usuario...</label>
+            <input id="usr-search" name="q">
+
+        </div>
+
+
+    </form>
+
+
+{% endblock %}

@@ -67,6 +67,9 @@ passport.serializeUser(function(user, done) {
 
     var usr= {"_id":user._id,picture:user.picture,name:user.name,surname:user.surname};
 
+
+
+
     done(null, usr);
     // if you use Model.id as your idAttribute maybe you'd want
     // done(null, user.id);

@@ -8,7 +8,8 @@ var FriendshipSchema = new Schema(
     {
         friend:{type: Schema.Types.ObjectId, ref: 'User'},
         friend2:{type: Schema.Types.ObjectId, ref: 'User'},
-        status:Number
+        status:Number,
+        friends_since : {type:Date}
     }
 );
 

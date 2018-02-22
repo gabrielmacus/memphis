@@ -1,0 +1,13 @@
+{% extends "layouts/layout.html" %}
+
+{% import "macros/users.html" as usersMacro %}
+
+{% block main %}
+
+
+    {% call usersMacro.list(results,'search-results') %}
+        No hay resultados para tu búsqueda
+
+    {% endcall %}
+
+{% endblock %}

@@ -4,19 +4,55 @@
     <meta charset="UTF-8">
     <title>{{pageTitle}}</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    {% if env.APP_STATUS != 'production'%}
+        <script src="  https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script>
+    {% else %}
+        <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    {% endif %}
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
 
 
     <script>
-        var connection = new WebSocket('ws://{{env.APP_WS_ADDRESS}}');
+        var connection = new WebSocket('{{env.APP_WS_ADDRESS}}');
+
+        var websocketsEvents = {};
+
+        var wse =
+            {
+                bind:function (name,callback) {
+
+                    if(!websocketsEvents[name])
+                    {
+                        websocketsEvents[name] = [];
+                    }
+
+                    websocketsEvents[name].push(callback);
+
+                }
+            }
+
 
         connection.onmessage=function (e) {
 
             var data = JSON.parse(e.data);
-            console.log(data);
+
+            if(data.type && websocketsEvents[data.type])
+            {
+                for(var i in websocketsEvents[data.type])
+                {
+                    var event  = websocketsEvents[data.type][i];
+
+                    event(data)
+                }
+
+            }
 
         };
+
+
+
     </script>
 
 </head>

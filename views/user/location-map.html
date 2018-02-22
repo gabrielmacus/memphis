@@ -1,4 +1,6 @@
+{% extends "../layouts/layout.html" %}
 
+{% block main %}
 
 <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCxqL3eG6quOKEbnY7d00DUPX0h5yoqS5Q&callback=initMap">
@@ -13,12 +15,11 @@
 <div id="map"></div>
 <script>
 
-
     function initMap() {
 
         var bounds = new google.maps.LatLngBounds();
 
-        var connection = new WebSocket('ws://localhost:9090');
+
 
         var map = false;
         var marker = false;
@@ -61,17 +62,17 @@
             //If i'm seeing friend's location
             connection.onmessage=function (e) {
 
-               var data = JSON.parse(e.data);
+                var data = JSON.parse(e.data);
 
-               switch (data.type)
-               {
-                   case "share-location":
+                switch (data.type)
+                {
+                    case "share-location":
 
-                       setLocationMarker(map,bounds,marker,data.location,data.user.picture);
-                       bounds = false;
+                        setLocationMarker(map,bounds,marker,data.location,data.user.picture);
+                        bounds = false;
 
-                       break;
-               }
+                        break;
+                }
             }
 
 
@@ -106,3 +107,6 @@
 </script>
 
 
+
+
+{% endblock %}

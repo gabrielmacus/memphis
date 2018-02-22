@@ -8,6 +8,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
 
 
+    <script>
+        var connection = new WebSocket('ws://{{env.APP_WS_ADDRESS}}');
+
+        connection.onmessage=function (e) {
+
+            var data = JSON.parse(e.data);
+            console.log(data);
+
+        };
+    </script>
+
 </head>
 
 <body>

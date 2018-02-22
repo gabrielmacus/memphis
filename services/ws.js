@@ -8,6 +8,25 @@ var UserService = require("../services/user");
 
 module.exports=
 {
+
+    SendTo:function (ids,data) {
+
+        ids.forEach(function (id) {
+
+            if(clients[id])
+            {
+                for(var k in clients[id])
+                {
+                    var session = clients[id][k];
+
+                    session.connection.send(JSON.stringify(data));
+
+                }
+            }
+        });
+
+
+    },
     Save:function (id,sessionid,client,data) {
 
         data = (!data)?{}:data;

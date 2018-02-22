@@ -119,7 +119,10 @@ router.post('/addfriend',function (req,res) {
                         //TODO: handle errors
                     }
 
-                    //TODO: Maybe emit an event to alert the user that has a friendship pending
+
+                    WsService.SendTo([id],{type:'friendship-request',user:req.session.passport.user});
+
+
 
 
                     return res.json(friendship);

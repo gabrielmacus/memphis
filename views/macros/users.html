@@ -17,7 +17,7 @@
             <span class="actions">
 
 
-                <div v-if="friendships && friendships['{{user._id}}']">
+                <template v-if="friendships && friendships['{{user._id}}']">
 
                     <template v-if="friendships['{{user._id}}'].status == 1">
 
@@ -33,15 +33,14 @@
 
 
                     </template>
-                     <template  v-else-if="friendships['{{user._id}}'].status == 2">
+                    <template  v-else-if="friendships['{{user._id}}'].status == 2">
                          <div class="friend-options">
                              <a @click="deleteFriend('{{user._id}}')" class="delete-friend">Eliminar amigo</a>
                          </div>
                      </template>
 
 
-                </div>
-
+                </template>
                 <template v-else>
                         <div class="friend-options">
                            <a @click="addFriend('{{user._id}}')" class="add-friend">Agregar amigo</a>
@@ -78,6 +77,7 @@
 
     (function () {
 
+        var usr  =Cookies.getJSON("usr");
 
         var friendships ={{results.friendships | dump | safe}};
 
@@ -128,7 +128,7 @@
                         })
                             .then(function(response) {
 
-                                Vue.set(app.friendships , id, {friend2:id,status:1});
+                                Vue.set(app.friendships , id, {friend:usr._id,friend2:id,status:1});
 
                             });
                     }
@@ -138,12 +138,11 @@
 
         function friendshipUpdate (data) {
 
-            console.log(data);
                 switch (data.status){
 
                     case 1:
 
-                        Vue.set(app.friendships , data.user._id, {friend:data.user._id,status:data.status});
+                        Vue.set(app.friendships , data.user._id, {friend2:usr._id,friend:data.user._id,status:data.status});
 
                         break;
 
@@ -151,6 +150,8 @@
 
                         var friendship = app.friendships[data.user._id];
                         friendship.status  =data.status;
+                        console.log(friendship);
+                        console.log(data.user._id);
 
                         Vue.set(app.friendships , data.user._id, friendship);
 

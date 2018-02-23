@@ -23,7 +23,7 @@ module.exports=
                 {
 
 
-                    res.cookie('usr',req.session.passport.user);
+                    res.cookie('usr',JSON.stringify(req.session.passport.user));
 
                     var checkPermissions = new module.exports.CheckPermissions(roles);
 

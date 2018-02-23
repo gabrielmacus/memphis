@@ -60,20 +60,14 @@
 
             {% else %}
             //If i'm seeing friend's location
-            connection.onmessage=function (e) {
+            wse.bind('share-location',function (data) {
 
-                var data = JSON.parse(e.data);
+                setLocationMarker(map,bounds,marker,data.location,data.user.picture);
+                bounds = false;
 
-                switch (data.type)
-                {
-                    case "share-location":
 
-                        setLocationMarker(map,bounds,marker,data.location,data.user.picture);
-                        bounds = false;
 
-                        break;
-                }
-            }
+            });
 
 
             {% endif %}

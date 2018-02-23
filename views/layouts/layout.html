@@ -6,14 +6,22 @@
 
     {% if env.APP_STATUS != 'production'%}
         <script src="  https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.js"></script>
+       <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.js"></script>
+
     {% else %}
         <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     {% endif %}
 
+    <script src="/scripts/vue-modaltor.js"></script>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+
 
     <script>
         var connection = new WebSocket('{{env.APP_WS_ADDRESS}}');
@@ -39,6 +47,13 @@
 
             var data = JSON.parse(e.data);
 
+            {% if env.APP_STATUS != 'production' %}
+
+                console.log(data);
+
+            {% endif %}
+
+
             if(data.type && websocketsEvents[data.type])
             {
                 for(var i in websocketsEvents[data.type])
@@ -50,6 +65,24 @@
 
             }
 
+
+            if(websocketsEvents['all'])
+            {
+                for(var i in websocketsEvents['all'])
+                {
+                    var event  = websocketsEvents['all'][i];
+
+                    event(data)
+                }
+
+            }
+
+
+
+
+
+
+
         };
 
 
@@ -59,6 +92,10 @@
 </head>
 
 <body>
+
+<header>
+    {% include "common/header.html" %}
+</header>
 
 {% block main %}
 {% endblock %}

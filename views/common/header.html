@@ -1,0 +1,91 @@
+<nav id="user-bar">
+
+    <figure class="avatar">
+        <img v-bind:src="user.picture">
+        <figcaption>
+            <span v-show="notificationsCount > 0" class="notifications-count" v-text="notificationsCount"></span>
+
+        </figcaption>
+    </figure>
+    <div class="user-data">
+
+        <span class="name" v-text="user.name"></span>
+        <span class="surname" v-text="user.surname"></span>
+
+    </div>
+
+
+</nav>
+<script>
+
+
+    (function () {
+
+        //TODO: fire on visibility change (when is seen)
+        var usr = Cookies.getJSON("usr");
+        var userBar =  new Vue({
+            el: '#user-bar',
+            data: {
+                notificationsCount: 0,
+                user:usr
+            }
+        });
+
+        function viewNotifications() {
+
+            Cookies.set("notifications","");
+            //TODO: handle ajax errors
+            axios({
+                method:'post',
+                url:'/me/readnotifications'
+            })
+                .then(function(response) {
+
+                });
+        }
+
+        function getNotifications(markAsSeen) {
+
+            var usr = Cookies.getJSON("usr");
+
+            var notifications = [];
+
+            if(usr.notifications)
+            {
+                Array.prototype.push.apply(notifications, usr.notifications);
+
+            }
+
+            var cookieNotifications = (Cookies.getJSON("notifications"))?Cookies.getJSON("notifications"):[];
+
+
+            Array.prototype.push.apply(notifications,cookieNotifications);
+
+            if(markAsSeen)
+            {
+                viewNotifications();
+            }
+
+            return notifications;
+
+
+        }
+
+        userBar.notificationsCount = getNotifications().length;
+
+
+        wse.bind('notification',function (data) {
+
+            userBar.notificationsCount++;
+
+            var notifications = (Cookies.getJSON("notifications"))?Cookies.getJSON("notifications"):[];
+
+            notifications.push(data);
+
+            Cookies.set('notifications',JSON.stringify(notifications));
+
+        })
+        })();
+
+
+</script>

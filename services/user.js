@@ -84,6 +84,7 @@ module.exports=
             },
 
 
+
         /**
          * Deletes both pending and actual friends
          * @param req

@@ -14,7 +14,8 @@ var UserSchema = new Schema(
         email:String,
         full_name:String,
         last_login:Date,
-        picture:String
+        picture:String,
+        notifications:{type:Array,default:[]}
     }
 );
 UserSchema.plugin(findOrCreate);

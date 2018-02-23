@@ -11,10 +11,28 @@ var UserService = require('../services/user');
 
 router.get('/sharelocation',function (req,res) {
 
+    WsService.sendToFriends(req,{type:'share-location-alert'});
+
     res.render('user/location-map',{myLocation:true,user:req.session.passport.user});
 
 })
+router.post('/readnotifications',function (req,res) {
 
+    User.update({_id:req.session.passport.user._id},{'$set':{'notifications':[]}}).exec(
+        function (err,results) {
+
+            if(err)
+            {
+                //TODO: handle errors
+            }
+
+            res.json(results);
+
+        }
+    );
+
+
+});
 router.get('/friends',function (req,res,next) {
 
     UserService.findFriends(req,2,function (err,results) {
@@ -24,10 +42,34 @@ router.get('/friends',function (req,res,next) {
             //TODO: Handle errors
         }
 
-        res.render('me/friends',{friends:results});
+        var friendships = {};
+        var friends = [];
+
+        results.forEach(function (friendship) {
+
+            var friend =  (friendship.friend._id == req.session.passport.user._id)? friendship.friend2:friendship.friend;
+
+            friendships[friend._id] = friendship;
+            friendships[friend._id].friend = friendships[friend._id].friend._id;
+            friendships[friend._id].friend2 = friendships[friend._id].friend2._id;
+
+            friends.push(friend);
+
+        })
+
+
+        res.render('me/friends',{results:{users:friends,friendships:friendships}});
 
 
     })
+
+
+
+
+
+
+
+
 
 
 });
@@ -82,7 +124,7 @@ router.post('/acceptfriend',function (req,res,next) {
 
 
 
-        WsService.SendTo([id],{type:'friendship-update',status:2,user:req.session.passport.user});
+        WsService.SendTo([id],{type:'friendship-update',status:2},req);
 
 
         return res.json(result);

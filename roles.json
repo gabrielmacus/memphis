@@ -61,6 +61,11 @@
       {
         "methods":["POST"],
         "action":"allow"
+      },
+      "me.readnotifications":
+      {
+        "methods":["POST"],
+        "action":"allow"
       }
 
     }

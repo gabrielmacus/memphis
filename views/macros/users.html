@@ -72,14 +72,22 @@
     {% endfor %}
 </ul>
 
+
 <script>
 
-
+    //TODO: handle ajax errors
     (function () {
 
         var usr  =Cookies.getJSON("usr");
 
+        {% if results.friendships %}
+
         var friendships ={{results.friendships | dump | safe}};
+
+        {% else %}
+
+        var friendships = {};
+        {% endif %}
 
         var app = new Vue({
             el: '#{{id}}',
@@ -135,14 +143,13 @@
                 }
         })
 
-
         function friendshipUpdate (data) {
 
                 switch (data.status){
 
                     case 1:
 
-                        Vue.set(app.friendships , data.user._id, {friend2:usr._id,friend:data.user._id,status:data.status});
+                        app.$set(app.friendships , data.user._id, {friend2:usr._id,friend:data.user._id,status:data.status});
 
                         break;
 
@@ -150,15 +157,12 @@
 
                         var friendship = app.friendships[data.user._id];
                         friendship.status  =data.status;
-                        console.log(friendship);
-                        console.log(data.user._id);
+                        app.$set(app.friendships , data.user._id, friendship);
 
-                        Vue.set(app.friendships , data.user._id, friendship);
+                        break;
 
-
-
-                    default:
-                        Vue.delete(app.friendships , data.user._id);
+                    case 3:
+                        app.$delete(app.friendships , data.user._id);
                         break;
                 }
 

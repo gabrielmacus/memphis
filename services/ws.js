@@ -5,25 +5,115 @@
 var cookie = require('cookie');
 var clients = {};
 var UserService = require("../services/user");
+var User = require('../models/User');
+const uuidv4 = require('uuid/v4');
 
 module.exports=
 {
+    /**
+     * Send messages to actual friends
+     * @param req
+     * @param data
+     */
+    sendToFriends:function (req,data,callback) {
 
-    SendTo:function (ids,data) {
+
+        UserService.findFriends(req,2,function (err,results) {
+
+            if(err)
+            {
+                //TODO: Handle errors
+            }
+            var ids = [];
+
+            for(var k in results){
+                var friendship = results[k];
+                var friend =  (friendship.friend._id == req.session.passport.user._id)? friendship.friend2:friendship.friend;
+
+                ids.push(friend._id);
+            }
+
+
+            module.exports.SendTo(ids,data,req);
+
+            if(callback)
+            {
+                callback();
+            }
+
+        });
+
+
+
+
+    },
+    SendTo:function (ids,data,req) {
+
+
+
+        var offlineUsers = [];
 
         ids.forEach(function (id) {
 
             if(clients[id])
             {
+
+
                 for(var k in clients[id])
                 {
                     var session = clients[id][k];
 
+                    if(req)
+                    {
+
+                        data.user = req.session.passport.user;
+                    }
+
                     session.connection.send(JSON.stringify(data));
+
+                    //Notifies online users, each session
+                    module.exports.Notify(session.connection,data);
 
                 }
             }
+            else
+            {
+                offlineUsers.push(id);
+            }
+
         });
+        //Notifies offline users
+        module.exports.Notify(offlineUsers,data);
+
+    },
+    Notify:function (connectionOrArray,data) {
+
+        //TODO: may be handle here push
+        var notifiableEvents = process.env.APP_NOTIFIABLE_EVENTS;
+
+        var isNotifiable = (notifiableEvents.indexOf("|"+data.type+"|") > -1);
+
+        if(isNotifiable)
+        {
+            var notification =  {type:'notification',data:data,time:new Date()};
+            if(Array.isArray(connectionOrArray))
+            {
+                User.update({"_id":{'$in':connectionOrArray}},{"$push":{"notifications":notification}},function (err,results) {
+
+                    if(err)
+                    {
+                        console.log(err);
+                        //TODO: handle errors
+                    }
+
+                });
+            }
+            else
+            {
+                connectionOrArray.send(JSON.stringify(notification));
+            }
+
+        }
 
 
     },
@@ -89,7 +179,16 @@ module.exports=
         }
         var cookies=cookie.parse(req.headers.cookie);
 
-        module.exports.Save(req.session.passport.user._id,cookies['connect.sid'],connection);
+        var wsSessionId =uuidv4();
+
+        if("production" !== process.env.APP_STATUS)
+        {
+            console.log("User "+req.session.passport.user._id+", session "+ wsSessionId+" connected at "+new Date());
+        }
+
+        module.exports.Save(req.session.passport.user._id,wsSessionId,connection);
+
+
 
         //when server gets a message from a connected user
         connection.on('message',function(message) {
@@ -102,6 +201,7 @@ module.exports=
 
             }
 
+            msg.user = req.session.passport.user;
             switch (msg.type)
             {
                 case "share-location":
@@ -110,44 +210,7 @@ module.exports=
                     if(msg.location)
                     {
 
-
-                        //TODO: important, make friends cache
-                        UserService.findFriends(req,2,function (err,friendships,total) {
-
-
-
-                             if(err)
-                             {
-                            //TODO: Handle errors
-                              }
-
-
-                            friendships.forEach(function (friendship) {
-
-                                var id = (friendship.friend["_id"] == req.session.passport.user._id)?friendship.friend2["_id"]:friendship.friend["_id"];
-
-                                  if(clients[id])
-                                  {
-                                      var sessions = clients[id];
-
-                                      for(var k in sessions)
-                                      {
-                                          var session  = sessions[k];
-
-
-                                          msg.user = req.session.passport.user;
-                                          session["connection"].send(JSON.stringify(msg));
-
-
-                                      }
-
-
-                                  }
-
-                              });
-
-
-                        })
+                        module.exports.sendToFriends(req,msg);
 
                     }
 
@@ -164,7 +227,12 @@ module.exports=
         //this may help if we are still in "offer","answer" or "candidate" state
         connection.on("close",function(e) {
 
-            module.exports.DeleteSession(req.session.passport.user._id,cookies['connect.sid']);
+            if("production" !== process.env.APP_STATUS)
+            {
+                console.log("User "+req.session.passport.user._id+", session "+ wsSessionId+" disconnected at "+new Date());
+            }
+
+            module.exports.DeleteSession(req.session.passport.user._id,wsSessionId);
         });
 
 

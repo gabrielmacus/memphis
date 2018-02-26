@@ -65,7 +65,7 @@ app.use(i18n.init);
 //https://stackoverflow.com/questions/27637609/understanding-passport-serialize-deserialize
 passport.serializeUser(function(user, done) {
 
-    var usr= {"_id":user._id,picture:user.picture,name:user.name,surname:user.surname,notifications:user.notifications};
+    var usr= {"_id":user._id,picture:user.picture,name:user.name,surname:user.surname};
 
 
 

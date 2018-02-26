@@ -2,7 +2,11 @@
    v2.0 | 20110126
    License: none (public domain)
 */
+*
+{
 
+  box-sizing: border-box;
+}
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -53,6 +57,7 @@ table {
 @titleColor : #757575;
 @facebookColor :#3B5998;
 @buttonColor: #EEEEEE;
+@searchButtonColor : #00B16A;
 
 @shadow: 1px 1px 1px rgba(0,0,0,0.42);
 
@@ -65,9 +70,9 @@ body,html {
   font-family: 'Raleway', sans-serif;
   padding: 0px;
   margin: 0;
-  overflow: hidden;
   height: 100%;
 }
+
 
 
 @headerHeight : 70px;
@@ -80,8 +85,14 @@ body > header
   background-color: @mainColor;
   height: @headerHeight;
 }
+
+
+
+
+
 @footerHeight : 35px;
-body > footer
+
+body.login > footer,body.login.home > footer
 {
 
   display: flex;
@@ -89,13 +100,44 @@ body > footer
   background-color: @mainColor;
   height: @footerHeight;
 }
+body.login > footer .footer-menu,body.home > footer .footer-menu
+{
+  display: none;
+}
 @sum : (@footerHeight + @headerHeight);
-body > main {
+
+body.login > main,body.home > main {
 
   width: 77%;
   margin: auto;
   height: ~"calc(100% - @{sum})";
 }
+
+
+
+body > footer
+{
+
+  display: flex;
+  width: 100%;
+  background-color: @mainColor;
+  height: @headerHeight;
+}
+@sum2 : (@headerHeight + @headerHeight);
+
+body > main {
+
+  width: 77%;
+  margin: auto;
+  height: ~"calc(100% - @{sum2})";
+}
+
+
+
+
+
+
+
 
 
 
@@ -171,6 +213,8 @@ body.home > main, body.login >  main
 
 .button
 {
+  border: 0;
+  outline: 0;
   background-color: @buttonColor;
   margin-bottom: 41px;
 }
@@ -186,14 +230,14 @@ body.home > main, body.login >  main
 {
   width: 100%;
 }
-body  nav
+body  > header .user
 {
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
 }
-body  nav .avatar
+body  > header .user .avatar
 {
   height: 100%;
   width: 72px;
@@ -202,7 +246,7 @@ body  nav .avatar
   display: flex;
   align-items: center;
 }
-body nav .user-data
+body  > header .user .user-data
 {
   padding-right: 15px;
   margin-left: auto;
@@ -210,11 +254,11 @@ body nav .user-data
   font-size: 20px;
   color: @buttonColor;
 }
-body  nav .avatar img
+body  > header .user .avatar img
 {
   margin: auto;
 }
-body nav .avatar .notifications-icon
+body  > header .user .avatar .notifications-icon
 {
   position: absolute;
   top: 4px;
@@ -230,21 +274,20 @@ body nav .avatar .notifications-icon
   color: white;
   font-size: 17px;
 }
-body nav .avatar .notifications-icon .notifications-count
+body  > header .user .avatar .notifications-icon .notifications-count
 {
   margin: auto;
 }
 .notifications > .notification:first-child
 {
-  margin-top: 15px;
+  margin-top: 40px;
 }
 .notifications > .notification
 {
   flex-wrap: wrap;
   width: 100%;
   position: relative;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding: 20px;
 }
 .notifications > .notification > .friendship-update
 {
@@ -299,12 +342,147 @@ body nav .avatar .notifications-icon .notifications-count
   left: -15px;
   top: 0;
 }
+.notifications
+{
+  display: flex;
+  flex-wrap: wrap;
+}
 .modal-vue-content
 {
   border-radius: 4px;
   background-color: @buttonColor;
+  padding:0px!important;
 }
 .modal-vue-overlay
 {
   background-color: rgba(0,0,0,0.7)!important;
+}
+.modal-vue-panel
+{
+  overflow: hidden;
+}
+.modal-vue-actions
+{
+  right: 10px!important;
+  top: 10px!important;
+}
+.modal-vue-action-close
+{
+  display: flex!important;
+  align-items: center;
+  /* color: #6d4343; */
+  border-radius: 50%!important;
+  background: #212121;
+  padding: 2px;
+  width: auto!important;
+  height: auto!important;
+}
+.modal-vue-action-close svg path
+{
+  fill: white;
+}
+
+
+.footer-menu
+{
+  width: 100%;
+  display: flex;
+}
+.footer-menu .nav-link
+{
+
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  width: fill-available;
+  align-items: center;
+  display: flex;
+}
+.footer-menu .nav-link img
+{
+  max-height: 100%;
+  /* width: auto; */
+  width: auto;
+  margin: auto;
+}
+.footer-menu .search-users img
+{
+  position: relative;
+  top: -5px;
+}
+
+.footer-menu .search-users
+{
+  background-color: #3DB39E;
+
+}
+.footer-menu .view-friends
+{
+  background-color: #1094BC;
+}
+
+.footer-menu .share-location
+{
+  background-color: #3F51B5;
+}
+
+input
+{
+  outline: 0;
+  border: 0;
+}
+.search-button
+{
+  width: 25%;
+
+  background-color: @searchButtonColor;
+}
+.form-field
+{
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.search-input
+{  font-size: 20px;
+  padding-left: 10px;
+  width: 75%;
+  background-color: @buttonColor;
+  box-shadow: none!important;
+  text-align: left!important;
+}
+
+@placeholderColor: #616161;
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  font-size: 20px;
+  color: @placeholderColor;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  font-size: 20px;
+  color: @placeholderColor;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  font-size: 20px;
+  color: @placeholderColor;
+}
+:-moz-placeholder { /* Firefox 18- */
+  font-size: 20px;
+  color: @placeholderColor;
+}
+
+body.search form
+{
+  width: 100%;
+  margin: auto;
+}
+
+body.search main
+{
+  display: flex;
+  align-items: center;
+}
+.search-button img
+{
+  max-height: 100%;
+  height: auto;
+  width: 40px;
 }

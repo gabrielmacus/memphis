@@ -136,6 +136,8 @@
                         })
                             .then(function(response) {
 
+                                console.log(response);
+
                                 Vue.set(app.friendships , id, {friend:usr._id,friend2:id,status:1});
 
                             });

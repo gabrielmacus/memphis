@@ -1,1 +1,11 @@
-{{friends}}
+
+{% extends "layouts/layout.html" %}
+
+{% import "macros/users.html" as usersMacro %}
+
+{% block main %}
+{% call usersMacro.list(results,'pending-friends-results') %}
+No solicitudes de amistad pendientes
+{% endcall %}
+
+{% endblock %}

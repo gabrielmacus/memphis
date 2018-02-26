@@ -66,6 +66,11 @@
       {
         "methods":["POST"],
         "action":"allow"
+      },
+      "me.notifications":
+      {
+        "methods":["GET"],
+        "action":"allow"
       }
 
     }

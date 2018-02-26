@@ -1,6 +1,6 @@
 
 <div  id="user-bar">
-    <nav>
+    <div class="user">
 
         <figure @click="viewNotifications" class="avatar">
             <img v-bind:src="user.picture">
@@ -17,21 +17,21 @@
         </div>
 
 
-    </nav>
+    </div>
 
 
     <vue-modaltor
             :visible="showNotifications"
-            @hide="showNotifications = false"
+            @hide="hideModal"
             :resize-width='{1200:"60%",992:"80%",768:"90%"}'
     >
-        <ul class="notifications" v-if="notifications && notifications.length">
-            <li class="notification" v-for="notification in notifications">
+        <ul class="notifications" v-if="notifications">
+            <li class="notification" v-for="notification in notifications" v-if="notification.data.status != 3">
 
-                <template v-if="notification.data.type == 'friendship-update' && notification.data.status != 3">
+                <template v-if="notification.data.type == 'friendship-update' ">
 
 
-                    <div class="friendship-update">
+                    <a v-bind:href="getNotificationLink(notification.data)"  class="friendship-update">
 
                         <figure class="user-avatar">
                             <img v-bind:src="notification.data.user.picture">
@@ -47,7 +47,7 @@
                                 <template v-if="notification.data.status==2">ahora es tu amigo/a</template>
                             </p>
                         </div>
-                    </div>
+                    </a>
 
 
                 </template>
@@ -81,18 +81,43 @@
             methods:{
                 viewNotifications:function () {
 
-                    this.showNotifications = true;
-                    this.notifications = getNotifications();
+
+                    if(this.notifications.length)
+                    {
+                        this.showNotifications = true;
+                    }
+
                 },
                 hideModal:function(){
+                    markAsSeenNotifications();
                     this.showNotifications = false
+                },
+                getNotificationLink:function (data) {
+
+                    if(data.type == 'friendship-update')
+                    {
+                        switch (data.status)
+                        {
+                            case 1:
+
+                                return '/me/friends/pending';
+
+                                break;
+                            default:
+
+                                return '';
+
+                                break;
+                        }
+                    }
+
                 }
             }
         });
 
-        function viewNotifications() {
+        function markAsSeenNotifications() {
 
-            Cookies.set("notifications","");
+            Cookies.remove('notifications',{path:'/'});
             //TODO: handle ajax errors
             axios({
                 method:'post',
@@ -100,11 +125,53 @@
             })
                 .then(function(response) {
 
+                    Vue.set(userBar,'notifications',[]);
+                    Vue.set(userBar,'notificationsCount',0);
+
+
                 });
+
+
+
+
         }
 
-        function getNotifications(markAsSeen) {
+        function getNotifications(markAsSeen,callback) {
 
+            var notifications = (Cookies.getJSON("notifications"))?Cookies.getJSON("notifications"):[];
+
+            if(notifications.length > 0)
+            {
+                return callback(notifications);
+            }
+
+
+            //TODO: handle ajax errors
+            axios({
+                method:'get',
+                url:'/me/notifications'
+            })
+                .then(function(response) {
+
+
+
+                    var notifications = response.data.results;
+
+                    Cookies.set('notifications',JSON.stringify(notifications));
+
+                    if(markAsSeen)
+                    {
+                        markAsSeenNotifications();
+                    }
+
+
+                    callback(notifications);
+
+
+
+                });
+
+            /*
             var usr = Cookies.getJSON("usr");
 
             var notifications = [];
@@ -119,29 +186,34 @@
 
 
             Array.prototype.push.apply(notifications,cookieNotifications);
+            */
 
-            if(markAsSeen)
-            {
-                viewNotifications();
-            }
-
-            return notifications;
 
 
         }
 
-        userBar.notificationsCount = getNotifications().length;
+      getNotifications(false,function (results) {
+
+          userBar.notificationsCount = results.length;
+              userBar.notifications = results;
+        });
 
 
         wse.bind('notification',function (data) {
 
+
+            if(data.type='friendship-update' && data.data.status == 3)
+            {
+                return false;
+            }
+
+
             userBar.notificationsCount++;
 
-            var notifications = (Cookies.getJSON("notifications"))?Cookies.getJSON("notifications"):[];
+            userBar.notifications.push(data);
 
-            notifications.push(data);
+            Cookies.set('notifications',JSON.stringify(userBar.notifications));
 
-            Cookies.set('notifications',JSON.stringify(notifications));
 
         })
         })();

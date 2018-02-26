@@ -83,14 +83,39 @@ router.get('/friends/pending',function (req,res,next) {
             //TODO: Handle errors
         }
 
+
+        if(err)
+        {
+            //TODO: Handle errors
+        }
+
+        var friendships = {};
+        var pendingFriends = [];
+
+        results.forEach(function (friendship) {
+
+            var friend =  (friendship.friend._id == req.session.passport.user._id)? friendship.friend2:friendship.friend;
+
+            friendships[friend._id] = friendship;
+            friendships[friend._id].friend = friendships[friend._id].friend._id;
+            friendships[friend._id].friend2 = friendships[friend._id].friend2._id;
+
+            pendingFriends.push(friend);
+
+        })
+
+
+
+
+
         if(!req.query.api)
         {
-            res.render('me/pending-friends',{friends:results});
+            res.render('me/pending-friends',{"results":{users:pendingFriends,friendships:friendships},"pagination":pagination});
 
         }
         else
         {
-            res.json({"pagination":pagination,"results":results});
+            res.json({"pagination":pagination,"results":pendingFriends});
 
         }
 
@@ -137,7 +162,24 @@ router.post('/acceptfriend',function (req,res,next) {
 
 });
 
+router.get('/notifications',function (req,res) {
 
+    //TODO: may this should be paged?
+    User.findOne({_id:req.session.passport.user._id}).exec(
+        function (err,results) {
+
+            if(err)
+            {
+                //TODO: handle errors
+
+            }
+
+            res.json({results:(results.notifications)?results.notifications:[]});
+
+        }
+    );
+
+});
 
 
 

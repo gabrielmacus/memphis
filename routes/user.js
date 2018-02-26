@@ -16,7 +16,7 @@ router.get('/search',function (req,res,next) {
 
     if(!q)
     {
-        return   res.render('user/search');
+        return   res.render('user/search',{bodyClass:['search']});
     }
 
     var query = {'_id':{'$nin':[req.session.passport.user._id]},'full_name':new RegExp(q,'i')};
@@ -57,7 +57,7 @@ router.get('/search',function (req,res,next) {
                     });
 
                     //TODO: set pager
-                    res.render('user/search-results',{results:{users:results,friendships: friendships}});
+                    res.render('user/search-results',{  results:{users:results,friendships: friendships}});
 
                 });
             }
@@ -152,7 +152,7 @@ router.post('/addfriend',function (req,res) {
            return res.json({"error":"El usuario no existe "});
         }
 
-        Friendship.findOne({'$or':[{'friend':id},{'friend2':id}]}).exec(
+        Friendship.findOne({'$or':[{'friend':id,'friend2':req.session.passport.user._id},{'friend2':id,'friend':req.session.passport.user._id}]}).exec(
             function (err,friendship) {
                 if(err)
                 {

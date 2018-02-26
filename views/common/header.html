@@ -1,21 +1,68 @@
-<nav id="user-bar">
 
-    <figure class="avatar">
-        <img v-bind:src="user.picture">
-        <figcaption>
-            <span v-show="notificationsCount > 0" class="notifications-count" v-text="notificationsCount"></span>
+<div  id="user-bar">
+    <nav>
 
-        </figcaption>
-    </figure>
-    <div class="user-data">
+        <figure @click="viewNotifications" class="avatar">
+            <img v-bind:src="user.picture">
+            <figcaption v-show="notificationsCount > 0" class="notifications-icon">
+                <span  class="notifications-count" v-text="notificationsCount"></span>
 
-        <span class="name" v-text="user.name"></span>
-        <span class="surname" v-text="user.surname"></span>
+            </figcaption>
+        </figure>
+        <div class="user-data">
 
-    </div>
+            <span class="name" v-text="user.name"></span>
+            <span class="surname" v-text="user.surname"></span>
+
+        </div>
 
 
-</nav>
+    </nav>
+
+
+    <vue-modaltor
+            :visible="showNotifications"
+            @hide="showNotifications = false"
+            :resize-width='{1200:"60%",992:"80%",768:"90%"}'
+    >
+        <ul class="notifications" v-if="notifications && notifications.length">
+            <li class="notification" v-for="notification in notifications">
+
+                <template v-if="notification.data.type == 'friendship-update' && notification.data.status != 3">
+
+
+                    <div class="friendship-update">
+
+                        <figure class="user-avatar">
+                            <img v-bind:src="notification.data.user.picture">
+
+                        </figure>
+                        <div class="notification-data">
+                            <span class="name" v-text="notification.data.user.name"></span>
+                            <span class="surname" v-text="notification.data.user.surname"></span>
+
+                            <p class="text">
+
+                                <template v-if="notification.data.status==1">desea ser tu amigo/a</template>
+                                <template v-if="notification.data.status==2">ahora es tu amigo/a</template>
+                            </p>
+                        </div>
+                    </div>
+
+
+                </template>
+
+            </li>
+        </ul>
+
+
+
+
+    </vue-modaltor>
+
+</div>
+
+
 <script>
 
 
@@ -23,11 +70,23 @@
 
         //TODO: fire on visibility change (when is seen)
         var usr = Cookies.getJSON("usr");
-        var userBar =  new Vue({
+          userBar =  new Vue({
             el: '#user-bar',
             data: {
                 notificationsCount: 0,
-                user:usr
+                user:usr,
+                showNotifications:false,
+                notifications:[]
+            },
+            methods:{
+                viewNotifications:function () {
+
+                    this.showNotifications = true;
+                    this.notifications = getNotifications();
+                },
+                hideModal:function(){
+                    this.showNotifications = false
+                }
             }
         });
 

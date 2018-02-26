@@ -5,9 +5,25 @@
 {% block main %}
 
 
-<a href="/user/search">Buscar usuarios</a>
+<div class="home-buttons">
+    <a class="shadow-element button" href="/user/search">
+        <span class="text">Buscar usuarios</span>
+        <img class="icon" src="/images/search-icon.svg">
 
-<a href="/me/sharelocation">Compartir ubicación</a>
+    </a>
 
-<a href="/me/friends">Ver amigos</a>
+    <a class="shadow-element button" href="/me/friends">
+        <span class="text">Ver amigos</span>
+        <img class="icon" src="/images/view-friends.svg">
+
+    </a>
+
+    <a class="shadow-element button" href="/me/sharelocation">
+        <span class="text">Activar rastreo</span>
+        <img class="icon" src="/images/share-location-icon.svg">
+    </a>
+
+
+</div>
+
 {% endblock %}

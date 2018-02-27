@@ -16,7 +16,7 @@ router.get('/login',function (req,res) {
 
 //Facebook
 var FacebookStrategy = require('passport-facebook').Strategy;
-
+ 
 passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,
@@ -53,4 +53,3 @@ router.get('/facebook/return',
 //End Facebook
 
 module.exports = router;
-

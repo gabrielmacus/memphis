@@ -4,22 +4,65 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('memphis:server');
-var http = require('http');
+var appData = require('../app');
+var app  = appData.app;
+var sessionParser = appData.sessionParser;
 
+var debug = require('debug')('memphis:server');
+//var http = require('http');
+var fs = require('fs');
+var https = require('https');
+var privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
+/**
+ * Create HTTPS server.
+ */
+
+var server = https.createServer(credentials, app);//http.createServer(app);
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.APP_PORT || '3000');
 app.set('port', port);
 
-/**
- * Create HTTP server.
- */
 
-var server = http.createServer(app);
+
+
+
+/*
+* Sets ws server
+*/
+var WebSocket = require('ws');
+var WsService = require('../services/ws');
+
+
+var wss = new WebSocket.Server({
+  server: server,
+    verifyClient:function (info,done) {
+
+        sessionParser(info.req, {},function () {
+
+          if(!info.req.session.passport || !info.req.session.passport.user)
+          {
+            return done(false);
+          }
+
+            done(true);
+
+        });
+
+    }});
+
+
+
+//all connected to the server users
+
+//when a user connects to our sever
+wss.on('connection',WsService.OnConnection);
+
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -28,6 +71,7 @@ var server = http.createServer(app);
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
 
 /**
  * Normalize a port into a number, string, or false.

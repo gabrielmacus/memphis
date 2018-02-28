@@ -52,6 +52,32 @@
 
                 </template>
 
+
+
+                                <template v-if="notification.data.type == 'share-location-alert' ">
+
+
+                                    <a v-bind:href="getNotificationLink(notification.data)"  class="share-location-alert">
+
+                                        <figure class="user-avatar">
+                                            <img v-bind:src="notification.data.user.picture">
+
+                                        </figure>
+                                        <div class="notification-data">
+                                            <span class="name" v-text="notification.data.user.name"></span>
+                                            <span class="surname" v-text="notification.data.user.surname"></span>
+
+                                            <p class="text">
+                                              esta compartiendo su ubicación
+                                            </p>
+                                        </div>
+                                    </a>
+
+
+                                </template>
+
+
+
             </li>
         </ul>
 
@@ -70,7 +96,7 @@
 
         //TODO: fire on visibility change (when is seen)
         var usr = Cookies.getJSON("usr");
-          userBar =  new Vue({
+          var userBar =  new Vue({
             el: '#user-bar',
             data: {
                 notificationsCount: 0,
@@ -103,12 +129,17 @@
                                 return '/me/friends/pending';
 
                                 break;
+
                             default:
 
                                 return '';
 
                                 break;
                         }
+                    }
+                    else if(data.type == 'share-location-alert')
+                    {
+                      return '/user/viewlocation?id='+data.user._id;
                     }
 
                 }
@@ -219,4 +250,29 @@
         })();
 
 
+</script>
+
+<div v-bind:class="className" id="message-bar" v-if="text && text != ''">
+  <p v-text="text">
+  </p>
+  <span @click="close" class="close-message">
+    <img src="/images/close.svg">
+    </span>
+</div>
+
+<script>
+
+var  messageBar =  new Vue({
+  el: '#message-bar',
+  data: {
+    text:"",
+    className:{}
+  },
+  methods:{
+    close:function(){
+      this.text = "";
+      this.className = {};
+    }
+  }
+});
 </script>

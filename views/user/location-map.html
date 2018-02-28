@@ -36,7 +36,7 @@
             {% if myLocation %}
 
             //If i'm sharing my location
-            setInterval(function () {
+            var geolocationInterval=setInterval(function () {
 
                 navigator.geolocation.getCurrentPosition(function (position) {
 
@@ -51,8 +51,34 @@
 
                 }, function (error) {
 
+                    //TODO: i18n
                     //TODO: HANDLE GEOLOCATION ERROR
-                    alert(error);
+
+                    messageBar.className = {"error":true};
+
+                    clearInterval(geolocationInterval);
+
+                   switch (error.code) {
+
+                   case error.PERMISSION_DENIED:
+
+                      messageBar.text ="Permiti el acceso a tu ubicación y reintentalo";
+                       break;
+
+                       case error.POSITION_UNAVAILABLE:
+                       messageBar.text ="Ubicación no disponible. Asegurate de activar el gps en tu dispositivo y volvelo a intentar";
+
+                       break;
+
+                       case error.TIMEOUT:
+                       messageBar.text ="Tiempo de espera agotado. Asegurate de tener conexión a internet";
+
+                       break;
+                     default:
+                     messageBar.text ="Error desconocido. Intentá compartir tu ubicación nuevamente";
+                     break;
+
+                   }
                 });
 
 

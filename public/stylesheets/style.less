@@ -475,7 +475,7 @@ body.search form
   margin: auto;
 }
 
-body.search main
+body.search main,body.share-location main,body.view-location main
 {
   display: flex;
   align-items: center;
@@ -485,4 +485,47 @@ body.search main
   max-height: 100%;
   height: auto;
   width: 40px;
+}
+#message-bar
+{
+  z-index: 2;
+  position: fixed;
+  margin-top: 70px;
+  width: 100%;
+  display: flex;
+  color: white;
+  height: auto;
+  align-items: center;
+  padding: 8px;
+  font-size: 14px;
+  line-height: 20px;
+}
+#message-bar p
+{
+  margin-right: auto;
+  max-width: 90%
+} 
+#message-bar.error{
+  background: #E53935;
+}
+#message-bar.success
+{
+  background: #43A047;
+}
+#message-bar.warning
+{
+  color: black;
+  background-color: #FFEB3B;
+}
+#message-bar .close-message
+{
+  position: absolute;
+  right: 7px;
+
+  top: 7px;
+}
+#message-bar .close-message img
+{
+  width: 12px;
+  height: auto;
 }

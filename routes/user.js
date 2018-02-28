@@ -117,7 +117,7 @@ router.get('/viewlocation',function (req,res) {
         }
 
 
-        return res.render("user/location-map");
+        return res.render("user/location-map",{bodyClass:['view-location']});
 
 
 

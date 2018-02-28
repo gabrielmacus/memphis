@@ -9,7 +9,11 @@ var dotenv = require('dotenv').load();
 var passport = require('passport');
 var i18n = require('i18n');
 var fs = require('fs');
-var http = require('http');
+//var http = require('http');
+var https = require('https');
+var privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
 var WebSocket = require('ws');
 
 i18n.configure({directory: __dirname  + '/locales',defaultLocale: process.env.APP_LOCALE_DEFAULT});
@@ -35,7 +39,7 @@ var AuthService = require('./services/auth');
 var WsService = require('./services/ws');
 
 var app = express();
- 
+
 // view engine setup
 
 var expressNunjucks = require('express-nunjucks');
@@ -119,29 +123,21 @@ app.use(function(err, req, res, next) {
 });
 
 
+var https = require('https');
+var privateKey  = fs.readFileSync('./sslcert/server.key', 'utf8');
+var certificate = fs.readFileSync('./sslcert/server.crt', 'utf8');
+var credentials = {key: privateKey, cert: certificate};
+
+/**
+ * Create HTTPS server.
+ */
+
+var server = https.createServer(credentials, app);//http.createServer(app);
+
+//const server = http.createServer(app);
+//const httpsServer = https.createServer(credentials, app);
+
+//app.server = httpsServer;
 
 
-const server = http.createServer(app);
-
-const wss = new WebSocket.Server({
-    verifyClient:function (info,done) {
-
-        sessionParser(info.req, {},function () {
-
-            done(true);
-
-        });
-
-    },
-    port: 9090},server);
-
-//all connected to the server users
-
-//when a user connects to our sever
-wss.on('connection',WsService.OnConnection);
-
-
-app.server = server;
-
-
-module.exports = app;
+module.exports = {app:app,sessionParser:sessionParser};

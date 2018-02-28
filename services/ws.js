@@ -55,7 +55,9 @@ module.exports=
 
         ids.forEach(function (id) {
 
-            if(clients[id])
+
+            //Check if object exists and isn't empty
+            if(clients[id] && clients[id].constructor === Object  && Object.keys(clients[id]).length > 0  )
             {
 
 
@@ -98,7 +100,10 @@ module.exports=
             var notification =  {type:'notification',data:data,time:new Date()};
             if(Array.isArray(connectionOrArray))
             {
+
+
                 User.update({"_id":{'$in':connectionOrArray}},{"$push":{"notifications":notification}},function (err,results) {
+
 
                     if(err)
                     {
@@ -174,9 +179,10 @@ module.exports=
 
         if( !req.session.passport || !req.session.passport.user)
         {
-
             connection.close();
         }
+
+
         var cookies=cookie.parse(req.headers.cookie);
 
         var wsSessionId =uuidv4();

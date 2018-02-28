@@ -13,7 +13,7 @@ router.get('/sharelocation',function (req,res) {
 
     WsService.sendToFriends(req,{type:'share-location-alert'});
 
-    res.render('user/location-map',{myLocation:true,user:req.session.passport.user});
+    res.render('user/location-map',{bodyClass:['share-location'],myLocation:true,user:req.session.passport.user});
 
 })
 router.post('/readnotifications',function (req,res) {

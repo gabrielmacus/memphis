@@ -13,10 +13,37 @@ router.get('/login',function (req,res) {
 /**
  * Passport stategies
  */
+//Facebook token
+
+var FacebookTokenStrategy = require('passport-facebook-token');
+
+passport.use(new FacebookTokenStrategy({
+    clientID: process.env.FACEBOOK_APP_ID,
+    clientSecret: process.env.FACEBOOK_APP_SECRET
+  }, function(accessToken, refreshToken, profile, done) {
+
+            User.findOrCreate({email:profile.email,facebook_id:profile.id,full_name:profile.first_name+" "+profile.last_name,name:profile.first_name,surname:profile.last_name,email:profile.email,picture:profile.picture.data.url},function (err,user) {
+
+                return cb(err, user);
+
+            });
+  }
+
+));
+
+
+router.post('/facebook/token',passport.authenticate('facebook-token'),
+  function (req, res) {
+    //TODO: handle response
+    res.send(req.user? 200 : 401);
+  });
+
+//End Facebook token
+
 
 //Facebook
 var FacebookStrategy = require('passport-facebook').Strategy;
- 
+
 passport.use(new FacebookStrategy({
         clientID: process.env.FACEBOOK_APP_ID,
         clientSecret: process.env.FACEBOOK_APP_SECRET,

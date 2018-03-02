@@ -33,7 +33,6 @@ module.exports=
                 ids.push(friend._id);
             }
 
-
             module.exports.SendTo(ids,data,req);
 
             if(callback)
@@ -49,9 +48,14 @@ module.exports=
     },
     SendTo:function (ids,data,req) {
 
-
-
         var offlineUsers = [];
+
+        if(req)
+        {
+
+            data.user = req.session.passport.user;
+        }
+
 
         ids.forEach(function (id) {
 
@@ -64,12 +68,6 @@ module.exports=
                 for(var k in clients[id])
                 {
                     var session = clients[id][k];
-
-                    if(req)
-                    {
-
-                        data.user = req.session.passport.user;
-                    }
 
                     session.connection.send(JSON.stringify(data));
 

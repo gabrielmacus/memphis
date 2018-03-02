@@ -139,6 +139,7 @@
                     }
                     else if(data.type == 'share-location-alert')
                     {
+
                       return '/user/viewlocation?id='+data.user._id;
                     }
 
@@ -275,4 +276,82 @@ var  messageBar =  new Vue({
     }
   }
 });
+</script>
+
+<div id="notification-prompt-bar" v-if="openPromptBar">
+  <img @click="enableNotifications" src="/images/notifications-bell-button.svg">
+  <span @click="close" class="close-message">
+    <img src="/images/close.svg">
+    </span>
+</div>
+
+<link rel="manifest" href="/manifest.json" />
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+<script>
+
+
+
+    var openPromptBar = false;
+     var  promptBarApp = new Vue({
+      el: '#notification-prompt-bar',
+      data: {
+        openPromptBar:openPromptBar
+      },
+      methods:{
+        close:function(){
+          this.openPromptBar = false;
+        },
+        disableNotifications:function()
+        {
+              OneSignal.setSubscription(false);
+        },
+        enableNotifications:function() {
+
+              OneSignal.setSubscription(true);
+              OneSignal.registerForPushNotifications();
+        }
+      }
+    });
+
+
+      var OneSignal = window.OneSignal || [];
+      OneSignal.push(function() {
+        OneSignal.init({
+          appId: "945da558-d1b9-481b-9ff2-888edaf56bc2",
+          autoRegister: false,
+          notifyButton: {
+            enable: false,
+          },
+            welcomeNotification: {
+                        disable: true
+            }
+        });
+
+
+        OneSignal.on('subscriptionChange', function (isSubscribed) {
+
+                   if (isSubscribed) {
+                       promptBarApp.openPromptBar = false;
+                   } else {
+                       promptBarApp.openPromptBar = true;
+                   }
+
+               });
+
+               OneSignal.isPushNotificationsEnabled(function (isEnabled) {
+
+                   if (isEnabled) {
+                       promptBarApp.openPromptBar = false;
+                   } else {
+                       promptBarApp.openPromptBar = true;
+                   }
+
+               });
+
+
+
+
+
+      });
+
 </script>

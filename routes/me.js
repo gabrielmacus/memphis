@@ -80,15 +80,13 @@ router.get('/friends/pending',function (req,res,next) {
 
         if(err)
         {
+          console.log(err);
             //TODO: Handle errors
         }
 
 
-        if(err)
-        {
-            //TODO: Handle errors
-        }
-
+      if(results)
+      {
         var friendships = {};
         var pendingFriends = [];
 
@@ -118,6 +116,7 @@ router.get('/friends/pending',function (req,res,next) {
             res.json({"pagination":pagination,"results":pendingFriends});
 
         }
+      }
 
 
     },2);
